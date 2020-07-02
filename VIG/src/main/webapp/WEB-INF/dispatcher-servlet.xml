@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:websocket="http://www.springframework.org/schema/websocket"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       					   http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.1.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd 
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+                           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd">
+     
+     <!-- Activates @Scheduled and @Async annotations for scheduling -->
+     <task:annotation-driven />    
+     
+    <mvc:annotation-driven/> 	
+ 
+    <context:component-scan base-package="com.VIG.mvc.web">      
+      	<context:include-filter 	type="annotation"	expression="org.springframework.stereotype.Controller" />
+		<context:exclude-filter 	type="annotation" 	expression="org.springframework.stereotype.Service"/>
+		<context:exclude-filter 	type="annotation" 	expression="org.springframework.stereotype.Repository"/>
+    </context:component-scan>        
+   
+	<mvc:resources mapping="/css/**" location="./WEB-INF/css/" />
+   	<mvc:resources mapping="/images/**" location="./WEB-INF/images/" />
+   	<mvc:resources mapping="/javascript/**" location="./WEB-INF/javascript/" />
+   	<mvc:resources mapping="/upload/**" location="./WEB-INF/images/uploadFiles/" />
+    
+    <!-- Websocket -->
+    <websocket:handlers>
+    	<websocket:mapping handler="echoHandler" path="/echo"/>
+    	
+    	<!-- Httpsession 의 값을 websession에 넣어준다.  -->
+    	<websocket:handshake-interceptors>
+ 	         <bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor"/>
+ 	    </websocket:handshake-interceptors>     	
+    	
+    	<websocket:sockjs/>
+	</websocket:handlers>
+	
+	<!-- 핸들러 관리 -->
+	<bean id="echoHandler" class="com.VIG.mvc.util.EchoHandler"/>
+
+
+     <!--  :: ViewResolver 선언 (필요시 교체) -->	
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver" />
+    
+    
+    <!-- 최대 50MB 이상 업로드 시 에러 발생(VISION 최대 용량 200MB)  -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	    <property name="maxUploadSize" value="50000000"/>  
+	    <property name="maxInMemorySize" value="50000000"/> 
+	</bean>
+     
+     
+     <!-- google Class Bean설정 추가 -->
+  <!-- 클라이언트ID와 보안비밀 세팅 -->
+  <bean id="googleConnectionFactory"
+  class="org.springframework.social.google.connect.GoogleConnectionFactory">
+    <constructor-arg value="1040078428873-giaaedahko7o4cd8q2dndsvn5tqr2bl4.apps.googleusercontent.com" />
+    <constructor-arg value="FSirw3SDcPfU-akFshXK7tYG" />
+  </bean>
+
+  <!-- 승인된 자바스크립트 원본과 승인된 리디렉션 URI -->
+  <bean id="googleOAuth2Parameters" class="org.springframework.social.oauth2.OAuth2Parameters">
+    <property name="scope" value="https://www.googleapis.com/auth/plus.login" />
+    <property name="redirectUri" value="http://127.0.0.1:8080/VIG" />
+  </bean>
+  <!-- google Class Bean설정 추가 -->
+  
+  
+</beans>
